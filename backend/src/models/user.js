@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
-const UserSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    default: null,
+  },
   name: {
     type: String,
     required: true,
@@ -18,6 +22,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    value: validator.isStrongPassword(value),
+    validate: (value) => validator.isStrongPassword(value),
   },
 });
+
+const User = mongoose.model("User", userSchema);
+
+module.exports = User;
