@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 require("./db/mongoose");
 require("dotenv").config();
 
@@ -7,6 +8,7 @@ const port = process.env.PORT;
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: process.env.BASE_URL,

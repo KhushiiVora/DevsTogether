@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import "./App.css";
 import Login from "./pages/Login";
+import ProtectedRoute from "./components/validation/ProtectedRoute";
 
 function App() {
   const { theme } = useTheme();
@@ -26,6 +27,9 @@ function App() {
                 <Route index element={<Home />} />
                 <Route path="signup" element={<Signup />} />
                 <Route path="login" element={<Login />} />
+              </Route>
+              <Route path="/landing">
+                {/* <Route index element={<ProtectedRoute user={}></ProtectedRoute>} /> */}
               </Route>
             </>
           )}

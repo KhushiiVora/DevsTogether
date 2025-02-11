@@ -117,6 +117,17 @@ const StyledSection = styled.section`
     transform: translateY(1px);
   }
 
+  .password_suggestion {
+    visibility: hidden;
+    color: #f46666;
+    font-size: 0.1rem;
+    margin-top: -1rem;
+  }
+
+  .password_suggestion.show {
+    visibility: visible;
+  }
+
   span,
   a {
     color: ${(props) => props.theme.tertiary};
