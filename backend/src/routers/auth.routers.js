@@ -1,7 +1,11 @@
 const passport = require("passport");
 const router = require("express").Router();
 
-const { postSignup, postLogin } = require("../controllers/auth.controllers");
+const {
+  postSignup,
+  postLogin,
+  getGoogleCallback,
+} = require("../controllers/auth.controllers");
 
 router.post("/signup", postSignup);
 
@@ -15,10 +19,10 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    successRedirect: `${process.env.BASE_URL}/landing`,
     failureRedirect: `${process.env.BASE_URL}/login`,
     session: true,
-  })
+  }),
+  getGoogleCallback
 );
 
 module.exports = router;

@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import axios from "../axiosConfig";
+
+import { saved as userSaved } from "../state/userSlice";
 
 import IconButton from "@mui/material/IconButton";
 import Input from "@mui/material/Input";
@@ -27,6 +30,7 @@ function Login() {
   });
   const [showPasswordSuggestion, setShowPasswordSuggestion] = useState(false);
 
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,8 +56,26 @@ function Login() {
   }
 
   async function logInWithGoogle() {
-    console.log("in logInWithGoogle");
-    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google`;
+    const authWindow = window.open(
+      `${import.meta.env.VITE_API_BASE_URL}/auth/google`,
+      "_blank",
+      "width=700,height=700"
+    );
+
+    const receiveMessage = (event) => {
+      if (event.origin !== import.meta.env.VITE_API_BASE_URL) return;
+
+      const data = event.data;
+      if (data.status === "success") {
+        dispatch(userSaved(JSON.parse(data.user)));
+        authWindow?.close();
+        window.location.href = `${window.origin}/landing`;
+      }
+
+      window.removeEventListener("message", receiveMessage);
+    };
+
+    window.addEventListener("message", receiveMessage);
   }
 
   function isPasswordStrong() {
@@ -71,6 +93,7 @@ function Login() {
       const response = await axios.post("/auth/login", formData);
       const user = response.data;
       console.log("in login", user);
+      dispatch(userSaved(user));
       navigate("/landing");
     } catch (error) {
       toast.error(error.response.data, {

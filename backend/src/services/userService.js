@@ -20,12 +20,23 @@ class UserService {
       return { error };
     }
   }
-  async findUserByUserId(userId) {
+  // remove if not needed
+  async findByUserId(userId) {
     try {
-      const user = await User.findOne({ userId });
+      const user = await User.findOne({ userId }).select("-password");
       return { user };
     } catch (error) {
       console.log("Error in findByUserId service: ", error);
+      return { error };
+    }
+  }
+
+  async findById(id) {
+    try {
+      const user = await User.findById(id).select("-password");
+      return { user };
+    } catch (error) {
+      console.log("Error in findById user service:", error);
       return { error };
     }
   }

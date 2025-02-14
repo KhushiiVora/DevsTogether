@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import axios from "../axiosConfig";
+
+import { saved as userSaved } from "../state/userSlice";
 
 import IconButton from "@mui/material/IconButton";
 import Input from "@mui/material/Input";
@@ -27,6 +30,7 @@ function Signup() {
   });
   const [showPasswordSuggestion, setShowPasswordSuggestion] = useState(false);
 
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -66,8 +70,10 @@ function Signup() {
       const response = await axios.post("/auth/signup", formData);
       const user = response.data;
       console.log("in signup", user);
+      dispatch(userSaved(user));
       navigate("/landing");
     } catch (error) {
+      console.log("signup error", error);
       toast.error(error.response.data, {
         position: "bottom-center",
         autoClose: 3000,

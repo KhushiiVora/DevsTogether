@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      validate: (value) => validator.isAlpha(value),
+      validate: (value) => validator.isAlpha(validator.blacklist(value, " ")),
     },
     email: {
       type: String,
@@ -22,7 +22,6 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
       trim: true,
       validate: (value) => validator.isStrongPassword(value),
     },

@@ -16,16 +16,25 @@ const googleStrategy = new GoogleStrategy(
     callbackURL,
   },
   async function (accessToken, refreshToken, profile, done) {
-    console.log("in side google strategy callback");
-    console.log("profile: ", profile._json);
+    const { name, email } = profile._json;
+    const userId = profile.id;
 
-    return done(null, profile);
-
-    // const userId = profile.id;
-    // const { user, error } = await userService.findUserByUserId(userId);
-    // if (!user && !error) {
-    //   // user = register function call
-    // }
+    const result = await userService.findByEmail(email);
+    if (!result.user && !result.error) {
+      const { user, error } = await userService.register({
+        name,
+        email,
+        userId,
+      });
+      console.log("user in google oAuth:", user);
+      if (user) return done(null, user);
+      else return done(error, null);
+    } else if (result.user) {
+      return done(null, result.user);
+    } else if (result.error) {
+      console.log("Error in google OAuth:", result.error);
+      return done(result.error, null);
+    }
   }
 );
 

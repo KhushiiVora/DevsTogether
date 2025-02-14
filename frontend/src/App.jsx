@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { ThemeProvider } from "styled-components";
 
 import useTheme from "./hooks/useTheme";
@@ -9,9 +10,11 @@ import Signup from "./pages/Signup";
 import "./App.css";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/validation/ProtectedRoute";
+import Landing from "./pages/Landing";
 
 function App() {
   const { theme } = useTheme();
+  const { user } = useSelector((state) => state.user);
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
@@ -29,7 +32,14 @@ function App() {
                 <Route path="login" element={<Login />} />
               </Route>
               <Route path="/landing">
-                {/* <Route index element={<ProtectedRoute user={}></ProtectedRoute>} /> */}
+                <Route
+                  index
+                  element={
+                    <ProtectedRoute>
+                      <Landing />
+                    </ProtectedRoute>
+                  }
+                />
               </Route>
             </>
           )}

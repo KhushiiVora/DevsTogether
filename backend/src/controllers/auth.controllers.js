@@ -13,7 +13,7 @@ const postSignup = async (req, res) => {
   }
   if (result.jwt) {
     res.cookie("token", result.jwt, {
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 2 * 24 * 60 * 60 * 1000,
       httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? "None" : "",
       secure: process.env.NODE_ENV === "production",
@@ -26,7 +26,7 @@ const postLogin = async (req, res) => {
 
   if (result.isLoggedIn) {
     res.cookie("token", result.jwt, {
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 2 * 24 * 60 * 60 * 1000,
       httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? "None" : "",
       secure: process.env.NODE_ENV === "production",
@@ -37,4 +37,38 @@ const postLogin = async (req, res) => {
   }
 };
 
-module.exports = { postSignup, postLogin };
+const getGoogleCallback = async (req, res) => {
+  try {
+    const { user } = req;
+    if (!user) {
+      return res.redirect(`${process.env.BASE_URL}/login?error=auth_failed`);
+    }
+
+    const token = authService.generateToken(user._id);
+
+    if (token) {
+      res.cookie("token", token, {
+        maxAge: 2 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: process.env.NODE_ENV === "production",
+      });
+    }
+
+    // res.redirect(`${process.env.BASE_URL}/landing`);
+    res.send(`
+      <script>
+        window.opener.postMessage(
+          ${JSON.stringify({ status: "success", user: JSON.stringify(user) })}, 
+          "${process.env.BASE_URL}"
+        );
+        window.close();
+      </script>
+    `);
+  } catch (error) {
+    console.error("Error in getGoogleCallback:", error);
+    res.redirect(`${process.env.BASE_URL}/login?error=server_error`);
+  }
+};
+
+module.exports = { postSignup, postLogin, getGoogleCallback };
