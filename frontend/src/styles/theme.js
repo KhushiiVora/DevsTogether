@@ -1,5 +1,7 @@
 const light = {
   text: "#141414",
+  textOnBg: "#FFFFFF",
+  secondaryText: "#707070",
   background: "#FFFFFF",
   primary: "#065A72",
   secondary: "#098498",
@@ -14,6 +16,8 @@ const light = {
 
 const dark = {
   text: "#FFFFFF",
+  textOnBg: "#141414",
+  secondaryText: "#cccccc",
   background: "#141414",
   primary: "#098498",
   secondary: "#065A72",

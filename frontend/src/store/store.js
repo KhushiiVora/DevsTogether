@@ -4,8 +4,9 @@ import { persistReducer, persistStore } from "redux-persist";
 import storageSession from "redux-persist/lib/storage/session";
 
 import userReducer from "../state/userSlice";
+import themeReducer from "../state/themeSlice";
 
-const rootReducer = combineReducers({ user: userReducer });
+const rootReducer = combineReducers({ user: userReducer, theme: themeReducer });
 
 const persistConfig = {
   key: "root",
