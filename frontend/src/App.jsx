@@ -11,6 +11,7 @@ import "./App.css";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/validation/ProtectedRoute";
 import Landing from "./pages/Landing";
+import CodeEditor from "./pages/CodeEditor";
 
 function App() {
   const { theme } = useTheme();
@@ -41,6 +42,8 @@ function App() {
                   }
                 />
               </Route>
+              {/* Protect this route */}
+              <Route path="/editor" element={<CodeEditor />} />
             </>
           )}
         </Routes>

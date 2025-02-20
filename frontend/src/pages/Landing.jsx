@@ -49,7 +49,7 @@ function Landing() {
               required
             />
             <StyledFilledButton>New Room</StyledFilledButton>
-            <StyledFilledButton data-button-type="join">
+            <StyledFilledButton data-button-type="outlined">
               Join
             </StyledFilledButton>
           </div>

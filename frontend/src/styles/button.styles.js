@@ -45,7 +45,7 @@ const StyledFilledButton = styled.button`
   cursor: pointer;
   transition: all 0.5s ease;
 
-  &[data-button-type="join"] {
+  &[data-button-type="outlined"] {
     font-weight: 600;
     color: ${(props) => props.theme.primary};
     background-color: ${(props) => props.theme.background};
@@ -55,11 +55,20 @@ const StyledFilledButton = styled.button`
   &:hover {
     transform: translateY(-2px);
   }
-  &[data-button-type="join"]:hover {
-    background-color: ${(props) => props.theme.glassmorphism.background};
+  &[data-button-type="outlined"]:hover {
+    background: ${(props) => props.theme.glassmorphism.background};
   }
   &:active {
     transform: translateY(1px);
+  }
+  &[data-button-type="outlined"]:disabled {
+    color: ${(props) => props.theme.secondary};
+    border-color: ${(props) => props.theme.secondary};
+  }
+  &:disabled&:hover,
+  &:disabled&:active {
+    transform: none;
+    background-color: inherit;
   }
 `;
 
