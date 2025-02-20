@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import axios from "axios";
 import { Editor } from "@monaco-editor/react";
 import useTheme from "../hooks/useTheme";
-import { LANGUAGE_TEMPLATES, LANGUAGE_VERSIONS, LANGUAGES } from "../constants";
+import { LANGUAGE_TEMPLATES, LANGUAGE_VERSIONS } from "../constants";
 import LanguageSelector from "../components/editor/LanguageSelector";
 import OutputScreen from "../components/editor/OutputScreen";
 import { StyledSection } from "../styles/codeEditor.styles";

@@ -1,7 +1,7 @@
 const light = {
   text: "#141414",
   textOnBg: "#FFFFFF",
-  secondaryText: "#707070",
+  secondaryText: "#505050",
   background: "#FFFFFF",
   primary: "#065A72",
   secondary: "#098498",
