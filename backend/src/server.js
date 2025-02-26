@@ -1,11 +1,12 @@
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-require("./db/mongoose");
+const { app, server } = require("./socket");
 require("dotenv").config();
+require("./db/mongoose");
 
 const port = process.env.PORT;
-const app = express();
+// const app = express();
 
 app.use(
   cors({
@@ -24,7 +25,7 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log("Server is running on port: " + port + "!");
 });
 

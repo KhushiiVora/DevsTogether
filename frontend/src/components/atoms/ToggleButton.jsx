@@ -1,4 +1,4 @@
-import useTheme from "../../hooks/useTheme";
+import { useTheme } from "../../hooks/useTheme";
 import { StyledToggleDiv } from "../../styles/button.styles";
 
 function ToggleButton() {

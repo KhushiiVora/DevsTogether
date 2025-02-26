@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { saved as userSaved } from "./state/userSlice";
 import { ThemeProvider } from "styled-components";
 
-import useTheme from "./hooks/useTheme";
+import { useTheme } from "./hooks/useTheme";
+import axios from "./axiosConfig";
 import NonDesktop from "./components/validation/NonDesktop";
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
@@ -16,6 +18,18 @@ import CodeEditor from "./pages/CodeEditor";
 function App() {
   const { theme } = useTheme();
   const { user } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    async function getUserData() {
+      try {
+        const response = await axios.get("/user");
+        dispatch(userSaved(response.data));
+      } catch (error) {}
+    }
+    if (!user) {
+      getUserData();
+    }
+  }, []);
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
@@ -43,7 +57,7 @@ function App() {
                 />
               </Route>
               {/* Protect this route */}
-              <Route path="/editor" element={<CodeEditor />} />
+              <Route path="/editor/:roomCode" element={<CodeEditor />} />
             </>
           )}
         </Routes>

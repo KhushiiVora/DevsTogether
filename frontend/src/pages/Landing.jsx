@@ -1,17 +1,60 @@
 import { useState } from "react";
-import ToggleButton from "../components/atoms/ToggleButton";
-import { StyledFilledButton } from "../styles/button.styles";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { v4 as uuidv4 } from "uuid";
+import { useSocket } from "../hooks/useSocket";
+import { connectedUsersSaved } from "../state/socketSlice";
 
+import { ToastContainer } from "react-toastify";
+import { showErrorToast } from "../utils/toast";
+import ToggleButton from "../components/atoms/ToggleButton";
+import {
+  StyledFilledButton,
+  StyledOutlinedButton,
+} from "../styles/button.styles";
 import { StyledSection } from "../styles/landing.styles";
 
 import icon from "/icon.png";
 import logo from "/logo.jpg";
 
 function Landing() {
+  const { user } = useSelector((state) => state.user);
   const [inputValue, setInputValue] = useState("");
+  const { createNewSocket } = useSocket();
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (event) => {
     setInputValue(event.target.value);
+  };
+
+  const handleSocketError = (error) => {
+    showErrorToast("Failed to join room!");
+  };
+
+  const handleJoinRoom = (event) => {
+    if (!inputValue) return;
+    const socket = createNewSocket();
+    console.log(socket);
+
+    socket.on("connect_error", handleSocketError);
+    socket.on("connect_failed", handleSocketError);
+
+    socket.emit("join", {
+      roomCode: inputValue,
+      user,
+    });
+    socket.on("newuser", ({ users }) => {
+      console.log("newuser event");
+      console.log(users);
+      dispatch(connectedUsersSaved(users));
+    });
+    navigate(`/editor/${inputValue}`);
+  };
+  const generateCode = (event) => {
+    const code = uuidv4();
+    setInputValue(code);
   };
 
   return (
@@ -35,21 +78,23 @@ function Landing() {
         <div className="landing__body-main">
           <h1 className="landing__body-main__heading">
             Code Together, Anytime, Anywhere.
+            {/* Write, edit, and collaborate in real-time. */}
           </h1>
-          {/* Write, edit, and collaborate in real-time. */}
           <div className="landing__body-main__subline">
             One room, multiple minds — collaborate and code seamlessly with
             DevsTogether.
           </div>
           <div className="landing__body-main__controls">
+            <StyledOutlinedButton onClick={generateCode}>
+              Get Code
+            </StyledOutlinedButton>
             <input
               placeholder="Enter a code to join"
               value={inputValue}
               onChange={handleChange}
               required
             />
-            <StyledFilledButton>New Room</StyledFilledButton>
-            <StyledFilledButton data-button-type="outlined">
+            <StyledFilledButton onClick={handleJoinRoom}>
               Join
             </StyledFilledButton>
           </div>
@@ -58,6 +103,7 @@ function Landing() {
           <img src={logo}></img>
         </div>
       </div>
+      <ToastContainer />
     </StyledSection>
   );
 }

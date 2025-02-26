@@ -13,4 +13,4 @@ function useTheme() {
   return { theme: isDark ? dark : light, toggleTheme, isDark };
 }
 
-export default useTheme;
+export { useTheme };

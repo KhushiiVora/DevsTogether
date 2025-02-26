@@ -45,25 +45,11 @@ const StyledFilledButton = styled.button`
   cursor: pointer;
   transition: all 0.5s ease;
 
-  &[data-button-type="outlined"] {
-    font-weight: 600;
-    color: ${(props) => props.theme.primary};
-    background-color: ${(props) => props.theme.background};
-    border: 2px solid ${(props) => props.theme.primary};
-  }
-
   &:hover {
     transform: translateY(-2px);
   }
-  &[data-button-type="outlined"]:hover {
-    background: ${(props) => props.theme.glassmorphism.background};
-  }
   &:active {
     transform: translateY(1px);
-  }
-  &[data-button-type="outlined"]:disabled {
-    color: ${(props) => props.theme.secondary};
-    border-color: ${(props) => props.theme.secondary};
   }
   &:disabled&:hover,
   &:disabled&:active {
@@ -72,4 +58,19 @@ const StyledFilledButton = styled.button`
   }
 `;
 
-export { StyledToggleDiv, StyledFilledButton };
+const StyledOutlinedButton = styled(StyledFilledButton)`
+  font-weight: 600;
+  color: ${(props) => props.theme.primary};
+  background-color: ${(props) => props.theme.background};
+  border: 2px solid ${(props) => props.theme.primary};
+
+  &:hover {
+    background: ${(props) => props.theme.glassmorphism.background};
+  }
+  &:disabled {
+    color: ${(props) => props.theme.secondary};
+    border-color: ${(props) => props.theme.secondary};
+  }
+`;
+
+export { StyledToggleDiv, StyledFilledButton, StyledOutlinedButton };

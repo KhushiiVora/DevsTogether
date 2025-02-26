@@ -5,8 +5,13 @@ import storageSession from "redux-persist/lib/storage/session";
 
 import userReducer from "../state/userSlice";
 import themeReducer from "../state/themeSlice";
+import socketReducer from "../state/socketSlice";
 
-const rootReducer = combineReducers({ user: userReducer, theme: themeReducer });
+const rootReducer = combineReducers({
+  user: userReducer,
+  theme: themeReducer,
+  socket: socketReducer,
+});
 
 const persistConfig = {
   key: "root",

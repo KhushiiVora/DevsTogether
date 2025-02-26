@@ -12,7 +12,9 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-import { toast, Slide, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
+import { showErrorToast } from "../utils/toast";
+import { isPasswordStrong } from "../utils/validatePassword";
 
 import {
   StyledSection,
@@ -34,7 +36,7 @@ function Signup() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setShowPasswordSuggestion(!isPasswordStrong());
+    setShowPasswordSuggestion(!isPasswordStrong(formData.password));
   }, [formData.password]);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -55,17 +57,9 @@ function Signup() {
     });
   }
 
-  function isPasswordStrong() {
-    const password = formData.password.trim();
-    const regex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-    return password.length ? regex.test(password) : true;
-  }
-
   async function handleSubmit(event) {
     event.preventDefault();
-    if (!isPasswordStrong()) return;
+    if (!isPasswordStrong(formData.password)) return;
     try {
       const response = await axios.post("/auth/signup", formData);
       const user = response.data;
@@ -74,17 +68,7 @@ function Signup() {
       navigate("/landing");
     } catch (error) {
       console.log("signup error", error);
-      toast.error(error.response.data, {
-        position: "bottom-center",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Slide,
-      });
+      showErrorToast(error.response.data);
     }
   }
 
