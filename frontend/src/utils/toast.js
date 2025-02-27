@@ -12,12 +12,12 @@ const toastOptions = {
   transition: Slide,
 };
 
-function showSuccessToast(message) {
-  toast.success(message, toastOptions);
+function showInfoToast(message) {
+  toast.info(message, toastOptions);
 }
 
 function showErrorToast(message) {
   toast.error(message, toastOptions);
 }
 
-export { showSuccessToast, showErrorToast };
+export { showInfoToast, showErrorToast };

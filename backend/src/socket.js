@@ -41,6 +41,31 @@ io.on("connection", (socket) => {
       users,
     });
   });
+  socket.on("code-change", ({ roomCode, code }) => {
+    socket.broadcast.to(roomCode).emit("code-changed", { code });
+  });
+  socket.on("sync-code", ({ socketId, code, language }) => {
+    io.to(socketId).emit("language-selected", { language });
+    io.to(socketId).emit("code-changed", { code });
+  });
+  socket.on("language-select", ({ roomCode, language }) => {
+    socket.broadcast.to(roomCode).emit("language-selected", {
+      language,
+    });
+  });
+  socket.on("disconnecting", () => {
+    console.log(socket.rooms);
+    const rooms = [...socket.rooms];
+    rooms.forEach((roomId) => {
+      socket.broadcast.to(roomId).emit("disconnected", {
+        socketId: socket.id,
+        username: socketUserMap[socket.id]?.name,
+      });
+    });
+
+    delete socketUserMap[socket.id];
+    socket.leave();
+  });
 });
 
 module.exports = { app, server, io };

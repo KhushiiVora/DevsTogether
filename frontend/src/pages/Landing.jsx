@@ -31,6 +31,7 @@ function Landing() {
 
   const handleSocketError = (error) => {
     showErrorToast("Failed to join room!");
+    navigate("/landing");
   };
 
   const handleJoinRoom = (event) => {

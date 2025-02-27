@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { Editor } from "@monaco-editor/react";
 import { useTheme } from "../hooks/useTheme";
 import { useSocket } from "../hooks/useSocket";
-import { newUserSaved } from "../state/socketSlice";
+import { disconnectedUserRemoved, newUserSaved } from "../state/socketSlice";
 import { LANGUAGE_TEMPLATES, LANGUAGE_VERSIONS } from "../constants";
 import LanguageSelector from "../components/editor/LanguageSelector";
 import OutputScreen from "../components/editor/OutputScreen";
@@ -13,7 +14,7 @@ import AvatarGroup from "@mui/material/AvatarGroup";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { ToastContainer } from "react-toastify";
-import { showSuccessToast } from "../utils/toast";
+import { showInfoToast } from "../utils/toast";
 import {
   StyledSection,
   stringToColor,
@@ -25,12 +26,13 @@ import UsersList from "../components/editor/UsersList";
 
 function CodeEditor() {
   const editorRef = useRef();
+  const languageRef = useRef();
+  const { roomCode } = useParams();
   const { isDark } = useTheme();
   const { socket } = useSocket();
   const { connectedUsers } = useSelector((state) => state.socket);
-  console.log(connectedUsers);
 
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(LANGUAGE_TEMPLATES["c"]);
   const [language, setLanguage] = useState("c");
   const [output, setOutput] = useState(null);
   const [isError, setIsError] = useState(false);
@@ -44,22 +46,58 @@ function CodeEditor() {
 
   useEffect(() => {
     console.log(socket);
+    languageRef.current = language;
     // broadcasted event
     socket.on("joined", (newUser) => {
       console.log(newUser.socketId, newUser.name);
       dispatch(newUserSaved(newUser));
-      showSuccessToast(`${newUser.name} joined!`);
+      showInfoToast(`${newUser.name} joined!`);
+      socket.emit("sync-code", {
+        socketId: newUser.socketId,
+        code: editorRef.current.getValue(),
+        language: languageRef.current,
+      });
     });
+    socket.on("disconnected", ({ socketId, username }) => {
+      dispatch(disconnectedUserRemoved(socketId));
+      showInfoToast(`${username} left!`);
+    });
+    socket.on("code-changed", ({ code }) => {
+      setCode(code);
+    });
+    socket.on("language-selected", ({ language }) => {
+      setLanguage(language);
+      setCode(LANGUAGE_TEMPLATES[language]);
+    });
+    // if error then need to remove this
+    return () => {
+      console.log("unmounted");
+      socket.disconnect();
+      socket.off("joined");
+      socket.off("disconnected");
+      socket.off("code-changed");
+      socket.off("language-selected");
+    };
   }, []);
 
   const handleOnChange = (code) => {
+    console.log(editorRef.current.getPosition());
     setCode(code);
+    socket.emit("code-change", {
+      roomCode,
+      code,
+    });
   };
   const onMount = (editor) => {
     editorRef.current = editor;
     editor.focus();
   };
   const onSelect = (language) => {
+    socket.emit("language-select", {
+      roomCode,
+      language,
+    });
+    languageRef.current = language;
     setLanguage(language);
     setCode(LANGUAGE_TEMPLATES[language]);
   };

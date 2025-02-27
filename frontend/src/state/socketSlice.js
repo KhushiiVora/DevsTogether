@@ -24,9 +24,19 @@ const socketSlice = createSlice({
     connectedUsersSaved: (state, action) => {
       state.connectedUsers = action.payload;
     },
+    disconnectedUserRemoved: (state, action) => {
+      state.connectedUsers = state.connectedUsers.filter(
+        (user) => user.socketId != action.payload
+      );
+    },
   },
 });
 
 export default socketSlice.reducer;
-export const { saved, cleared, newUserSaved, connectedUsersSaved } =
-  socketSlice.actions;
+export const {
+  saved,
+  cleared,
+  newUserSaved,
+  connectedUsersSaved,
+  disconnectedUserRemoved,
+} = socketSlice.actions;
