@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { Editor } from "@monaco-editor/react";
@@ -14,7 +14,11 @@ import AvatarGroup from "@mui/material/AvatarGroup";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { ToastContainer } from "react-toastify";
-import { showInfoToast } from "../utils/toast";
+import {
+  showErrorToast,
+  showInfoToast,
+  showSuccessToast,
+} from "../utils/toast";
 import {
   StyledSection,
   stringToColor,
@@ -43,10 +47,12 @@ function CodeEditor() {
   const open = Boolean(anchorEl);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log(socket);
     languageRef.current = language;
+    showSuccessToast("Welcome to " + roomCode + "!");
     // broadcasted event
     socket.on("joined", (newUser) => {
       console.log(newUser.socketId, newUser.name);
@@ -104,6 +110,19 @@ function CodeEditor() {
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
+  };
+  const handleCopyRoomId = async () => {
+    try {
+      await navigator.clipboard.writeText(roomCode);
+      showInfoToast("Room code is copied.");
+    } catch (error) {
+      showErrorToast("Unable to copy Room Code!");
+    }
+    handleClose();
+  };
+  const handleLeaveRoom = () => {
+    handleClose();
+    navigate("/landing", { replace: true });
   };
   const handleClose = () => {
     setAnchorEl(null);
@@ -217,10 +236,10 @@ function CodeEditor() {
               },
             }}
           >
-            <StyledMenuItem key="copyRoomId" onClick={handleClose}>
+            <StyledMenuItem key="copyRoomId" onClick={handleCopyRoomId}>
               Copy Room Id
             </StyledMenuItem>
-            <StyledMenuItem key="leaveRoom" onClick={handleClose}>
+            <StyledMenuItem key="leaveRoom" onClick={handleLeaveRoom}>
               Leave Room
             </StyledMenuItem>
           </StyledMenu>

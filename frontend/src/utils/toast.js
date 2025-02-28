@@ -20,4 +20,8 @@ function showErrorToast(message) {
   toast.error(message, toastOptions);
 }
 
-export { showInfoToast, showErrorToast };
+function showSuccessToast(message) {
+  toast.success(message, toastOptions);
+}
+
+export { showInfoToast, showErrorToast, showSuccessToast };
