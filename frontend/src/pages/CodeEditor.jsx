@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { Editor } from "@monaco-editor/react";
+import { throttle } from "lodash";
+import { Editor, useMonaco } from "@monaco-editor/react";
 import { useTheme } from "../hooks/useTheme";
 import { useSocket } from "../hooks/useSocket";
 import { disconnectedUserRemoved, newUserSaved } from "../state/socketSlice";
@@ -29,12 +30,15 @@ import { StyledOutlinedButton } from "../styles/button.styles";
 import UsersList from "../components/editor/UsersList";
 
 function CodeEditor() {
+  const monaco = useMonaco();
   const editorRef = useRef();
   const languageRef = useRef();
+  const remoteCursorsRef = useRef({});
   const { roomCode } = useParams();
   const { isDark } = useTheme();
   const { socket } = useSocket();
   const { connectedUsers } = useSelector((state) => state.socket);
+  const { user } = useSelector((state) => state.user);
 
   const [code, setCode] = useState(LANGUAGE_TEMPLATES["c"]);
   const [language, setLanguage] = useState("c");
@@ -86,8 +90,62 @@ function CodeEditor() {
     };
   }, []);
 
+  useEffect(() => {
+    if (monaco) {
+      socket.on("cursor-info", (data) => {
+        showRemoteCursor(data);
+      });
+    }
+  }, [monaco]);
+
+  const showRemoteCursor = ({ socketId, username, position }) => {
+    const decorations = [
+      {
+        range: new monaco.Range(
+          position.lineNumber,
+          position.column,
+          position.lineNumber,
+          position.column
+        ),
+        options: {
+          className: `remote-cursor--${socketId}`,
+          afterContentClassName: `remote-cursor-label--${socketId}`,
+        },
+      },
+    ];
+    // editorRef.current.deltaDecorations([], decorations);
+
+    remoteCursorsRef.current[socketId] = editorRef.current.deltaDecorations(
+      remoteCursorsRef.current[socketId] || [],
+      decorations
+    );
+
+    applyCursorStyles(socketId, username);
+  };
+
+  const applyCursorStyles = (socketId, username) => {
+    const style = document.createElement("style");
+    style.innerHTML = `
+    .remote-cursor--${socketId} {
+      border-left: 2px solid ${stringToColor(username)};
+      height: 1rem;
+    }
+    .remote-cursor-label--${socketId}::after {
+      content: "${username}";
+      position: absolute;
+      top: -1rem;
+      background: ${stringToColor(username)};
+      padding: 2px 5px;
+      font-size: 0.7rem;
+      color: white;
+      border-radius: 0.5rem;
+    }
+  `;
+    document.head.appendChild(style);
+  };
+
   const handleOnChange = (code) => {
-    console.log(editorRef.current.getPosition());
+    // console.log(editorRef.current);
     setCode(code);
     socket.emit("code-change", {
       roomCode,
@@ -97,7 +155,27 @@ function CodeEditor() {
   const onMount = (editor) => {
     editorRef.current = editor;
     editor.focus();
+    editorRef.current.onDidChangeCursorPosition((event) => {
+      // console.log(socket.id);
+      const position = editorRef.current.getPosition();
+      if (!position) return;
+      if (
+        remoteCursorsRef.current[socket.id] &&
+        remoteCursorsRef.current[socket.id].lineNumber === position.lineNumber
+      ) {
+        return;
+      }
+      sendCursorPosition(position);
+    });
   };
+  const sendCursorPosition = throttle((position) => {
+    socket.emit("cursor-move", {
+      socketId: socket.id,
+      username: user.name,
+      roomCode,
+      position,
+    });
+  }, 200);
   const onSelect = (language) => {
     socket.emit("language-select", {
       roomCode,

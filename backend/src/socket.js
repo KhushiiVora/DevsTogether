@@ -53,6 +53,9 @@ io.on("connection", (socket) => {
       language,
     });
   });
+  socket.on("cursor-move", (data) => {
+    socket.broadcast.to(data.roomCode).emit("cursor-info", data);
+  });
   socket.on("disconnecting", () => {
     console.log(socket.rooms);
     const rooms = [...socket.rooms];
