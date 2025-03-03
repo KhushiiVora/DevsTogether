@@ -145,4 +145,32 @@ function stringToColor(string) {
   return color;
 }
 
-export { StyledSection, stringToColor, StyledMenu, StyledMenuItem, StyledBox };
+const applyCursorStyles = (socketId, username) => {
+  const style = document.createElement("style");
+  style.innerHTML = `
+  .remote-cursor--${socketId} {
+    border-left: 2px solid ${stringToColor(username)};
+    height: 1rem;
+  }
+  .remote-cursor-label--${socketId}::after {
+    content: "${username}";
+    position: absolute;
+    top: -1rem;
+    background: ${stringToColor(username)};
+    padding: 2px 5px;
+    font-size: 0.7rem;
+    color: white;
+    border-radius: 0.5rem;
+  }
+`;
+  document.head.appendChild(style);
+};
+
+export {
+  StyledSection,
+  stringToColor,
+  StyledMenu,
+  StyledMenuItem,
+  StyledBox,
+  applyCursorStyles,
+};

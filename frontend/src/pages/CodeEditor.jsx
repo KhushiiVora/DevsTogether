@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { throttle } from "lodash";
@@ -9,25 +9,12 @@ import { useSocket } from "../hooks/useSocket";
 import { disconnectedUserRemoved, newUserSaved } from "../state/socketSlice";
 import { LANGUAGE_TEMPLATES, LANGUAGE_VERSIONS } from "../constants";
 import LanguageSelector from "../components/editor/LanguageSelector";
+import OutputHeader from "../components/editor/OutputHeader";
 import OutputScreen from "../components/editor/OutputScreen";
-import Avatar from "@mui/material/Avatar";
-import AvatarGroup from "@mui/material/AvatarGroup";
-import IconButton from "@mui/material/IconButton";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { ToastContainer } from "react-toastify";
-import {
-  showErrorToast,
-  showInfoToast,
-  showSuccessToast,
-} from "../utils/toast";
-import {
-  StyledSection,
-  stringToColor,
-  StyledMenu,
-  StyledMenuItem,
-} from "../styles/codeEditor.styles";
+import { showInfoToast, showSuccessToast } from "../utils/toast";
+import { StyledSection, applyCursorStyles } from "../styles/codeEditor.styles";
 import { StyledOutlinedButton } from "../styles/button.styles";
-import UsersList from "../components/editor/UsersList";
 
 function CodeEditor() {
   const monaco = useMonaco();
@@ -37,7 +24,6 @@ function CodeEditor() {
   const { roomCode } = useParams();
   const { isDark } = useTheme();
   const { socket } = useSocket();
-  const { connectedUsers } = useSelector((state) => state.socket);
   const { user } = useSelector((state) => state.user);
 
   const [code, setCode] = useState(LANGUAGE_TEMPLATES["c"]);
@@ -45,19 +31,14 @@ function CodeEditor() {
   const [output, setOutput] = useState(null);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isListOpen, setIsListOpen] = useState(false);
-
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   useEffect(() => {
     console.log(socket);
     languageRef.current = language;
     showSuccessToast("Welcome to " + roomCode + "!");
-    // broadcasted event
+    // broadcasted events
     socket.on("joined", (newUser) => {
       console.log(newUser.socketId, newUser.name);
       dispatch(newUserSaved(newUser));
@@ -84,9 +65,10 @@ function CodeEditor() {
       console.log("unmounted");
       socket.disconnect();
       socket.off("joined");
-      socket.off("disconnected");
       socket.off("code-changed");
       socket.off("language-selected");
+      socket.off("cursor-info");
+      socket.off("disconnected");
     };
   }, []);
 
@@ -123,29 +105,7 @@ function CodeEditor() {
     applyCursorStyles(socketId, username);
   };
 
-  const applyCursorStyles = (socketId, username) => {
-    const style = document.createElement("style");
-    style.innerHTML = `
-    .remote-cursor--${socketId} {
-      border-left: 2px solid ${stringToColor(username)};
-      height: 1rem;
-    }
-    .remote-cursor-label--${socketId}::after {
-      content: "${username}";
-      position: absolute;
-      top: -1rem;
-      background: ${stringToColor(username)};
-      padding: 2px 5px;
-      font-size: 0.7rem;
-      color: white;
-      border-radius: 0.5rem;
-    }
-  `;
-    document.head.appendChild(style);
-  };
-
   const handleOnChange = (code) => {
-    // console.log(editorRef.current);
     setCode(code);
     socket.emit("code-change", {
       roomCode,
@@ -156,7 +116,6 @@ function CodeEditor() {
     editorRef.current = editor;
     editor.focus();
     editorRef.current.onDidChangeCursorPosition((event) => {
-      // console.log(socket.id);
       const position = editorRef.current.getPosition();
       if (!position) return;
       if (
@@ -184,29 +143,6 @@ function CodeEditor() {
     languageRef.current = language;
     setLanguage(language);
     setCode(LANGUAGE_TEMPLATES[language]);
-  };
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleCopyRoomId = async () => {
-    try {
-      await navigator.clipboard.writeText(roomCode);
-      showInfoToast("Room code is copied.");
-    } catch (error) {
-      showErrorToast("Unable to copy Room Code!");
-    }
-    handleClose();
-  };
-  const handleLeaveRoom = () => {
-    handleClose();
-    navigate("/landing", { replace: true });
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-  const toggleDrawer = (open) => {
-    setIsListOpen(open);
   };
 
   const executeCode = async (event) => {
@@ -254,75 +190,7 @@ function CodeEditor() {
         />
       </div>
       <div className="code-editor__output">
-        <div className="code-editor__output-header">
-          <h2>Output:</h2>
-          {connectedUsers.length ? (
-            <AvatarGroup
-              className={"code-editor__output-header__avatars"}
-              total={connectedUsers.length}
-              max={3}
-              onClick={() => toggleDrawer(true)}
-            >
-              {connectedUsers.map((userData) => {
-                return userData.picture ? (
-                  <Avatar
-                    className="code-editor__output-header__avatars-avatar"
-                    key={userData._id}
-                    alt={userData.name}
-                    src={userData.picture}
-                  />
-                ) : (
-                  <Avatar
-                    className="code-editor__output-header__avatars-avatar"
-                    key={userData._id}
-                    alt={userData.name}
-                    sx={{ bgcolor: stringToColor(userData.name) }}
-                  >
-                    {`${userData.name.split(" ")[0][0]}`}
-                  </Avatar>
-                );
-              })}
-            </AvatarGroup>
-          ) : (
-            <></>
-          )}
-          <IconButton
-            className="code-editor__output-header-menuIcon"
-            aria-label="more"
-            id="long-button"
-            aria-controls={open ? "long-menu" : undefined}
-            aria-expanded={open ? "true" : undefined}
-            aria-haspopup="true"
-            onClick={handleClick}
-          >
-            <MoreVertIcon />
-          </IconButton>
-          <StyledMenu
-            id="long-menu"
-            MenuListProps={{
-              "aria-labelledby": "long-button",
-            }}
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            slotProps={{
-              paper: {
-                style: {
-                  maxHeight: 48 * 4.5,
-                  width: "20ch",
-                },
-              },
-            }}
-          >
-            <StyledMenuItem key="copyRoomId" onClick={handleCopyRoomId}>
-              Copy Room Id
-            </StyledMenuItem>
-            <StyledMenuItem key="leaveRoom" onClick={handleLeaveRoom}>
-              Leave Room
-            </StyledMenuItem>
-          </StyledMenu>
-          <UsersList isListOpen={isListOpen} toggleDrawer={toggleDrawer} />
-        </div>
+        <OutputHeader roomCode={roomCode} />
         <OutputScreen isLoading={isLoading} isError={isError} output={output} />
       </div>
       <ToastContainer />
