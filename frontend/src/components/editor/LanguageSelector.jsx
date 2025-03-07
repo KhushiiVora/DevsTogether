@@ -11,7 +11,7 @@ const LanguageSelector = (props) => {
       <FormControl
         sx={{
           m: 1,
-          height: 40,
+          height: 39,
           minWidth: 120,
         }}
       >

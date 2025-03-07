@@ -50,7 +50,7 @@ function OutputHeader(props) {
   };
   return (
     <div className="code-editor__output-header">
-      <h2>Output:</h2>
+      <h2>Output</h2>
       {connectedUsers.length ? (
         <AvatarGroup
           className={"code-editor__output-header__avatars"}

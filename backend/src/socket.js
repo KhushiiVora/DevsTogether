@@ -56,6 +56,11 @@ io.on("connection", (socket) => {
   socket.on("cursor-move", (data) => {
     socket.broadcast.to(data.roomCode).emit("cursor-info", data);
   });
+  socket.on("peer-stream-off", ({ roomCode, socketId }) => {
+    socket.broadcast.to(roomCode).emit("peer-streamed-off", {
+      socketId,
+    });
+  });
   socket.on("disconnecting", () => {
     console.log(socket.rooms);
     const rooms = [...socket.rooms];

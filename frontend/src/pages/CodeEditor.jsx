@@ -8,13 +8,19 @@ import { useTheme } from "../hooks/useTheme";
 import { useSocket } from "../hooks/useSocket";
 import { disconnectedUserRemoved, newUserSaved } from "../state/socketSlice";
 import { LANGUAGE_TEMPLATES, LANGUAGE_VERSIONS } from "../constants";
+import VideoStreamingGallery from "../components/editor/VideoStreamingGallery";
 import LanguageSelector from "../components/editor/LanguageSelector";
 import OutputHeader from "../components/editor/OutputHeader";
 import OutputScreen from "../components/editor/OutputScreen";
 import { ToastContainer } from "react-toastify";
 import { showInfoToast, showSuccessToast } from "../utils/toast";
+import { LuGalleryVerticalEnd } from "react-icons/lu";
+import { FaVideo, FaVideoSlash } from "react-icons/fa";
 import { StyledSection, applyCursorStyles } from "../styles/codeEditor.styles";
-import { StyledOutlinedButton } from "../styles/button.styles";
+import {
+  StyledOutlinedButton,
+  StyledIconButton,
+} from "../styles/button.styles";
 
 function CodeEditor() {
   const monaco = useMonaco();
@@ -31,6 +37,8 @@ function CodeEditor() {
   const [output, setOutput] = useState(null);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -170,10 +178,42 @@ function CodeEditor() {
     }
   };
 
+  const toggleGallery = (state) => {
+    setIsGalleryOpen(state);
+  };
+
+  const toggleStream = () => {
+    if (!isStreaming) {
+      toggleGallery(true);
+    }
+    setIsStreaming(!isStreaming);
+  };
+
   return (
     <StyledSection>
+      <VideoStreamingGallery
+        toggleGallery={toggleGallery}
+        isStreaming={isStreaming}
+        roomCode={roomCode}
+        className={isGalleryOpen ? "display" : ""}
+      />
       <div className="code-editor__editor">
-        <div>
+        <div className="code-editor__controls">
+          <div>
+            <StyledOutlinedButton
+              className={`${isGalleryOpen ? "hide" : ""}`}
+              onClick={() => toggleGallery(true)}
+            >
+              <LuGalleryVerticalEnd /> View streams
+            </StyledOutlinedButton>
+            <StyledIconButton onClick={toggleStream}>
+              {isStreaming ? (
+                <FaVideoSlash className="video-icon" />
+              ) : (
+                <FaVideo className="video-icon" />
+              )}
+            </StyledIconButton>
+          </div>
           <LanguageSelector language={language} onSelect={onSelect} />
           <StyledOutlinedButton disabled={isLoading} onClick={executeCode}>
             Run Code

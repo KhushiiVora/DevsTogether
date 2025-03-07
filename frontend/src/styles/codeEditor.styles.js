@@ -9,6 +9,39 @@ const StyledSection = styled.section`
   display: flex;
   background-color: ${(props) => props.theme.background};
 
+  .code-editor__gallery {
+    width: 15%;
+    padding: 0.5rem;
+    margin-left: -15%;
+    color: ${(props) => props.theme.text};
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.6s ease;
+  }
+
+  .code-editor__gallery.display {
+    margin-left: 0%;
+  }
+
+  .code-editor__gallery-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .code-editor__video-container {
+    margin-top: 1rem;
+    overflow-x: auto;
+  }
+
+  .code-editor__video-container video {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
   .code-editor__editor,
   .code-editor__output {
     width: 50%;
@@ -17,8 +50,25 @@ const StyledSection = styled.section`
   .code-editor__editor {
     display: flex;
     flex-direction: column;
-    align-items: end;
+    justify-content: center;
   }
+  .code-editor__controls {
+    display: flex;
+  }
+
+  .code-editor__controls div:first-child {
+    display: flex;
+    flex-grow: 2;
+  }
+
+  .code-editor__controls .hide {
+    display: none;
+  }
+
+  .code-editor__controls .video-icon {
+    font-size: 1.3rem;
+  }
+
   .code-editor__language_selector {
     height: 100%;
     border-radius: 0.7rem;

@@ -73,4 +73,25 @@ const StyledOutlinedButton = styled(StyledFilledButton)`
   }
 `;
 
-export { StyledToggleDiv, StyledFilledButton, StyledOutlinedButton };
+const StyledIconButton = styled.button`
+  /* padding: 0.3rem 0 0 0.2rem; */
+  border: none;
+  outline: none;
+  font-size: 1.8rem;
+  color: ${(props) => props.theme.primary};
+  background-color: ${(props) => props.theme.background};
+  display: flex;
+  align-items: center;
+  border-radius: 0.7rem;
+  transition: all 0.2s ease;
+  &:hover {
+    background: ${(props) => props.theme.glassmorphism.background};
+  }
+`;
+
+export {
+  StyledToggleDiv,
+  StyledFilledButton,
+  StyledOutlinedButton,
+  StyledIconButton,
+};
