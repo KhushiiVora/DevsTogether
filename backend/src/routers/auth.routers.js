@@ -5,6 +5,7 @@ const {
   postSignup,
   postLogin,
   getGoogleCallback,
+  getLogout,
 } = require("../controllers/auth.controllers");
 
 router.post("/signup", postSignup);
@@ -24,5 +25,7 @@ router.get(
   }),
   getGoogleCallback
 );
+
+router.get("/logout", getLogout);
 
 module.exports = router;

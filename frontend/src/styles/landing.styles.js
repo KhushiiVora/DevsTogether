@@ -34,6 +34,50 @@ const StyledSection = styled.section`
   .landing__nav-heading__title--together {
     color: ${(props) => props.theme.tertiary};
   }
+  .landing__avatar {
+    width: 1.8rem;
+    height: 1.8rem;
+    font-size: 1rem;
+    border: 1px solid ${(props) => props.theme.text};
+    color: ${(props) => props.theme.text};
+    cursor: pointer;
+  }
+  .landing__menu {
+    position: absolute;
+    text-align: center;
+    top: 2.5rem;
+    right: 0.5rem;
+    padding: 1rem;
+    border: 2px solid ${(props) => props.theme.secondary};
+    border-radius: 0.7rem;
+    color: ${(props) => props.theme.text};
+
+    .separator {
+      margin: 0.4rem 0;
+      border: 1px solid ${(props) => props.theme.secondary};
+    }
+    .logout {
+      color: ${(props) => props.theme.primary};
+      padding: 0.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      border-radius: 0.7rem;
+      cursor: pointer;
+
+      &:hover {
+        background-color: ${(props) => props.theme.glassmorphism.background};
+      }
+      &:active {
+        background-color: ${(props) => props.theme.background};
+      }
+    }
+    .logout-spinner {
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+  }
   .landing__body {
     width: 100%;
     height: 100%;

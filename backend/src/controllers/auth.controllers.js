@@ -71,4 +71,14 @@ const getGoogleCallback = async (req, res) => {
   }
 };
 
-module.exports = { postSignup, postLogin, getGoogleCallback };
+const getLogout = (req, res) => {
+  try {
+    res.cookie("token", "", { maxAge: 0, httpOnly: true });
+    res.status(200).send("Logged out successfully!");
+  } catch (error) {
+    console.log("Error in getLogout:", error);
+    res.status(500).send("Unable to logout! Try again.");
+  }
+};
+
+module.exports = { postSignup, postLogin, getGoogleCallback, getLogout };

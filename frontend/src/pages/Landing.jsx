@@ -8,6 +8,8 @@ import { connectedUsersSaved } from "../state/socketSlice";
 import { ToastContainer } from "react-toastify";
 import { showErrorToast } from "../utils/toast";
 import ToggleButton from "../components/atoms/ToggleButton";
+import Avatar from "@mui/material/Avatar";
+import { stringToColor } from "../styles/codeEditor.styles";
 import {
   StyledFilledButton,
   StyledOutlinedButton,
@@ -16,10 +18,12 @@ import { StyledSection } from "../styles/landing.styles";
 
 import icon from "/icon.png";
 import logo from "/logo.jpg";
+import Menu from "../components/landing/Menu";
 
 function Landing() {
   const { user } = useSelector((state) => state.user);
   const [inputValue, setInputValue] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { createNewSocket } = useSocket();
 
   const navigate = useNavigate();
@@ -58,8 +62,13 @@ function Landing() {
     setInputValue(code);
   };
 
+  const handleMenuOpen = (event) => {
+    event.stopPropagation();
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
-    <StyledSection>
+    <StyledSection onClick={() => setIsMenuOpen(false)}>
       <div className="landing__nav">
         <div className="landing__nav-heading">
           <img src={icon} className="landing__nav-heading__icon" />
@@ -72,7 +81,22 @@ function Landing() {
         </div>
         <div className="landing__nav-controls">
           <ToggleButton />
-          avatar
+          {user.picture ? (
+            <Avatar
+              className="landing__avatar"
+              alt={user.name}
+              src={user.picture}
+              onClick={handleMenuOpen}
+            />
+          ) : (
+            <Avatar
+              className="landing__avatar"
+              alt={user.name}
+              sx={{ bgcolor: stringToColor(user.name) }}
+              onClick={handleMenuOpen}
+            >{`${user.name.split(" ")[0][0]}`}</Avatar>
+          )}
+          {isMenuOpen && <Menu />}
         </div>
       </div>
       <div className="landing__body">

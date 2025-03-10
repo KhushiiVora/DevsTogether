@@ -56,8 +56,14 @@ function App() {
                   }
                 />
               </Route>
-              {/* Protect this route */}
-              <Route path="/editor/:roomCode" element={<CodeEditor />} />
+              <Route
+                path="/editor/:roomCode"
+                element={
+                  <ProtectedRoute>
+                    <CodeEditor />
+                  </ProtectedRoute>
+                }
+              />
             </>
           )}
         </Routes>
