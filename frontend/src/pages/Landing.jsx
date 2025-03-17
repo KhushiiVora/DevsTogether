@@ -17,7 +17,7 @@ import {
 import { StyledSection } from "../styles/landing.styles";
 
 import icon from "/icon.png";
-import logo from "/logo.jpg";
+import coworking from "/coworking.svg";
 import Menu from "../components/landing/Menu";
 
 function Landing() {
@@ -67,10 +67,14 @@ function Landing() {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const handleNavigateToHome = () => {
+    navigate("/");
+  };
+
   return (
     <StyledSection onClick={() => setIsMenuOpen(false)}>
       <div className="landing__nav">
-        <div className="landing__nav-heading">
+        <div className="landing__nav-heading" onClick={handleNavigateToHome}>
           <img src={icon} className="landing__nav-heading__icon" />
           <span className="landing__nav-heading__title landing__nav-heading__title--devs">
             Devs
@@ -125,7 +129,7 @@ function Landing() {
           </div>
         </div>
         <div className="landing__body-preview">
-          <img src={logo}></img>
+          <img src={coworking}></img>
         </div>
       </div>
       <ToastContainer />

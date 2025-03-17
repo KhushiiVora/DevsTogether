@@ -97,6 +97,13 @@ const StyledSection = styled.section`
   }
   .code-editor__output-header__avatars {
     cursor: pointer;
+    .MuiAvatar-root {
+      width: 1.8rem;
+      height: 1.8rem;
+      font-size: 1rem;
+      border: 1px solid ${(props) => props.theme.text};
+      color: ${(props) => props.theme.text};
+    }
   }
   .code-editor__output-header__avatars
     .code-editor__output-header__avatars-avatar {
@@ -118,6 +125,20 @@ const StyledSection = styled.section`
     border: 1px solid ${(props) => props.theme.secondary};
     border-radius: 0.7rem;
     white-space: pre-wrap;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 0.7rem;
+      border-radius: 10rem;
+    }
+    &::-webkit-scrollbar-track {
+      background: ${(props) => props.theme.primary};
+      border-radius: 10rem;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: ${(props) => props.theme.secondary};
+      border-radius: 10rem;
+    }
   }
 
   .code-editor__output-console--error {

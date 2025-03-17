@@ -8,7 +8,7 @@ const light = {
   tertiary: "#4AB8C9",
 
   glassmorphism: {
-    background: "rgba(173, 173, 173, 0.1)",
+    background: "rgba(255, 255, 255, 0.49)",
     border: "rgba(0, 0, 0, 0.2)",
     boxShadow: "rgba(0, 0, 0, 0.1)",
   },

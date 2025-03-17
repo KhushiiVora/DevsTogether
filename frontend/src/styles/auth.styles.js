@@ -26,8 +26,8 @@ const StyledSection = styled.section`
     border-radius: 5%;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid ${(props) => props.theme.glassmorphism.secondary};
-    box-shadow: 0 1px 15px ${(props) => props.theme.glassmorphism.secondary};
+    border: 1px solid ${(props) => props.theme.secondary};
+    box-shadow: 0 1px 15px ${(props) => props.theme.secondary};
     color: ${(props) => props.theme.primary};
     text-align: center;
   }
@@ -120,7 +120,7 @@ const StyledSection = styled.section`
   .password_suggestion {
     visibility: hidden;
     color: #f46666;
-    font-size: 0.1rem;
+    font-size: 0.7rem;
     margin-top: -1rem;
   }
 

@@ -19,6 +19,9 @@ const StyledSection = styled.section`
     display: flex;
     align-items: center;
   }
+  .landing__nav-heading {
+    cursor: pointer;
+  }
   .landing__nav-heading__icon {
     width: 1.7rem;
     height: 1.7rem;
@@ -88,7 +91,6 @@ const StyledSection = styled.section`
   .landing__body-preview {
     width: 50%;
     display: flex;
-    /* align-items: center; */
   }
 
   .landing__body-main {
@@ -134,8 +136,7 @@ const StyledSection = styled.section`
   }
 
   .landing__body-preview img {
-    width: 30%;
-    align-self: center;
+    width: 50%;
   }
 `;
 

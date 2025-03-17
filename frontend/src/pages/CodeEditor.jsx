@@ -194,6 +194,7 @@ function CodeEditor() {
       <VideoStreamingGallery
         toggleGallery={toggleGallery}
         isStreaming={isStreaming}
+        setIsStreaming={setIsStreaming}
         roomCode={roomCode}
         className={isGalleryOpen ? "display" : ""}
       />

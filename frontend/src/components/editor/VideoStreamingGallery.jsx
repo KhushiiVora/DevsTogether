@@ -8,7 +8,8 @@ import { IoClose } from "react-icons/io5";
 import { StyledIconButton } from "../../styles/button.styles";
 
 function VideoStreamingGallery(props) {
-  const { toggleGallery, isStreaming, roomCode, className } = props;
+  const { toggleGallery, isStreaming, setIsStreaming, roomCode, className } =
+    props;
   const videoRef = useRef();
   const myStreamRef = useRef();
   const streamsRef = useRef([]);
@@ -101,6 +102,7 @@ function VideoStreamingGallery(props) {
     } catch (error) {
       console.log(error);
       showErrorToast("Permission Denied");
+      setIsStreaming(false);
     }
   };
 
