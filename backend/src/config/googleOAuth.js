@@ -16,7 +16,7 @@ const googleStrategy = new GoogleStrategy(
     callbackURL,
   },
   async function (accessToken, refreshToken, profile, done) {
-    const { name, email } = profile._json;
+    const { name, email, picture } = profile._json;
     const userId = profile.id;
 
     const result = await userService.findByEmail(email);
@@ -25,8 +25,8 @@ const googleStrategy = new GoogleStrategy(
         name,
         email,
         userId,
+        picture,
       });
-      console.log("user in google oAuth:", user);
       if (user) return done(null, user);
       else return done(error, null);
     } else if (result.user) {

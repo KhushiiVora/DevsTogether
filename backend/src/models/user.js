@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema(
       trim: true,
       validate: (value) => validator.isStrongPassword(value),
     },
+    picture: {
+      type: String,
+      default: null,
+    },
   },
   {
     toJSON: {
