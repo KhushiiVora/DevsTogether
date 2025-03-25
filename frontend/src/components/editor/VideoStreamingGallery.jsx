@@ -29,7 +29,12 @@ function VideoStreamingGallery(props) {
   }, [isStreaming]);
 
   useEffect(() => {
-    const peerObj = new Peer(socket.id);
+    const peerObj = new Peer(socket.id, {
+      host: import.meta.env.VITE_API_PEER_HOST,
+      port: import.meta.env.VITE_API_PEER_PORT,
+      path: import.meta.env.VITE_API_PEER_PATH,
+      secure: import.meta.env.VITE_API_PEER_SECURE,
+    });
     setPeer(peerObj);
 
     peerObj.on(

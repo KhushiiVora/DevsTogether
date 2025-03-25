@@ -1,4 +1,5 @@
 require("dotenv").config();
+const { PeerServer } = require("peer");
 const session = require("express-session");
 const passport = require("passport");
 
@@ -9,6 +10,11 @@ const configureGoogleOAuth = require("./config/googleOAuth");
 const configurePassport = require("./config/passport");
 
 const authMiddleware = passport.authenticate("jwt", { session: false });
+const peerServer = PeerServer({
+  port: process.env.PEER_SERVER_PORT,
+  path: "/",
+  allow_discovery: true,
+});
 
 app.use(
   session({
@@ -26,6 +32,7 @@ app.use(passport.session());
 configurePassport(passport);
 configureGoogleOAuth(passport);
 
+app.use("/peerjs", peerServer);
 app.use("/auth", authRouter);
 
 app.use(authMiddleware);
