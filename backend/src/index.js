@@ -12,7 +12,7 @@ const configurePassport = require("./config/passport");
 const authMiddleware = passport.authenticate("jwt", { session: false });
 const peerServer = PeerServer({
   port: process.env.PEER_SERVER_PORT,
-  path: "/",
+  path: process.env.PEER_SERVER_PATH,
   allow_discovery: true,
 });
 
