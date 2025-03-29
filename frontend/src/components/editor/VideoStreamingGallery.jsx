@@ -29,13 +29,33 @@ function VideoStreamingGallery(props) {
   }, [isStreaming]);
 
   useEffect(() => {
-    const peerObj = new Peer(socket.id, {
+    const peerConfig = {
       host: import.meta.env.VITE_API_PEER_HOST,
       port: import.meta.env.VITE_API_PEER_PORT,
       path: import.meta.env.VITE_API_PEER_PATH,
-      secure: import.meta.env.VITE_API_PEER_SECURE,
-    });
+      secure: import.meta.env.VITE_API_PEER_SECURE === "true",
+      config: {
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun1.l.google.com:19302" },
+          { urls: "stun:stun2.l.google.com:19302" },
+          { urls: "stun:stun3.l.google.com:19302" },
+          { urls: "stun:stun4.l.google.com:19302" },
+        ],
+      },
+      debug: 3,
+    };
+
+    const peerObj = new Peer(socket.id, peerConfig);
     setPeer(peerObj);
+
+    peerObj.on("open", (id) => {
+      console.log("My peer ID is: " + id);
+    });
+
+    peerObj.on("error", (error) => {
+      console.error("PeerJS error:", error);
+    });
 
     peerObj.on(
       "call",

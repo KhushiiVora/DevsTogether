@@ -14,6 +14,14 @@ const peerServer = PeerServer({
   port: process.env.PEER_SERVER_PORT,
   path: process.env.PEER_SERVER_PATH,
   allow_discovery: true,
+  proxied: process.env.NODE_ENV === "production",
+  ssl:
+    process.env.NODE_ENV === "production"
+      ? {
+          key: process.env.SSL_KEY_PATH,
+          cert: process.env.SSL_CERT_PATH,
+        }
+      : undefined,
 });
 
 app.use(
