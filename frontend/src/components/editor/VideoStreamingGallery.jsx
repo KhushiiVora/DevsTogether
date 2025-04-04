@@ -11,24 +11,25 @@ function VideoStreamingGallery(props) {
   const { toggleGallery, isStreaming, setIsStreaming, roomCode, className } =
     props;
   const videoRef = useRef();
-  const myStreamRef = useRef();
+  const myStreamRef = useRef(null);
   const streamsRef = useRef([]);
   const { socket, connectedUsers } = useSelector((state) => state.socket);
   const [peer, setPeer] = useState(null);
   const [streams, setStreams] = useState({});
 
   useEffect(() => {
+    if (!peer) return;
+
     if (isStreaming) {
-      callAllConnectedUsers();
+      startLocalStream();
     } else {
-      console.log(myStreamRef.current?.getTracks());
-      myStreamRef.current?.getTracks()[0].stop();
-      myStreamRef.current?.getTracks()[1].stop();
-      socket.emit("peer-stream-off", { roomCode, socketId: socket.id });
+      stopLocalStream();
     }
-  }, [isStreaming]);
+  }, [isStreaming, peer]);
 
   useEffect(() => {
+    if (!socket?.id) return;
+
     const peerConfig = {
       host: import.meta.env.VITE_API_PEER_HOST,
       port: import.meta.env.VITE_API_PEER_PORT,
@@ -38,30 +39,27 @@ function VideoStreamingGallery(props) {
         iceServers: [
           { urls: "stun:stun.l.google.com:19302" },
           { urls: "stun:stun1.l.google.com:19302" },
-          { urls: "stun:stun2.l.google.com:19302" },
-          { urls: "stun:stun3.l.google.com:19302" },
-          { urls: "stun:stun4.l.google.com:19302" },
         ],
       },
       debug: 3,
     };
 
     const peerObj = new Peer(socket.id, peerConfig);
-    setPeer(peerObj);
 
     peerObj.on("open", (id) => {
-      console.log("My peer ID is: " + id);
+      console.log("Peer connection ready with ID:", id);
+      setPeer(peerObj);
     });
 
     peerObj.on("error", (error) => {
       console.error("PeerJS error:", error);
+      showErrorToast("Connection error occurred");
     });
 
-    peerObj.on(
-      "call",
-      (call) => {
-        console.log("call receiving.....", call);
-        // asnwer call with your stream
+    peerObj.on("call", async (call) => {
+      try {
+        console.log("Incoming call from:", call.peer);
+
         call.answer(myStreamRef.current);
         call.on("stream", (remoteStream) => {
           console.log("on receive call", remoteStream);
@@ -72,11 +70,13 @@ function VideoStreamingGallery(props) {
               return newState;
             });
         });
-      },
-      (error) => {
-        console.log("error in receiving call", error);
+        call.on("error", (error) => {
+          console.error("Call error:", error);
+        });
+      } catch (error) {
+        console.error("Error handling incoming call:", error);
       }
-    );
+    });
 
     socket.on("peer-streamed-off", ({ socketId }) => {
       setStreams((savedStreams) => {
@@ -84,6 +84,31 @@ function VideoStreamingGallery(props) {
         delete newState[socketId];
         return newState;
       });
+    });
+    socket.on("joined", (newUser) => {
+      console.log("hello");
+      if (myStreamRef.current) {
+        try {
+          console.log("Calling user:", newUser.socketId);
+          const call = peer.call(newUser.socketId, myStreamRef.current);
+
+          call.on("stream", (userVideoStream) => {
+            console.log("Got stream from:", newUser.socketId);
+            if (userVideoStream)
+              setStreams((savedStreams) => {
+                const newState = { ...savedStreams };
+                newState[call.peer] = userVideoStream;
+                return newState;
+              });
+          });
+
+          call.on("error", (error) => {
+            console.error("Call error with user:", newUser.socketId, error);
+          });
+        } catch (error) {
+          console.error("Error calling user:", newUser.socketId, error);
+        }
+      }
     });
 
     socket.on("disconnected", ({ socketId }) => {
@@ -96,37 +121,63 @@ function VideoStreamingGallery(props) {
     });
 
     return () => {
-      peerObj.disconnect();
+      stopLocalStream();
       peerObj.destroy();
-      console.log(myStreamRef.current?.getTracks());
-      myStreamRef.current?.getTracks()[0].stop();
-      myStreamRef.current?.getTracks()[1].stop();
     };
-  }, []);
+  }, [socket?.id]);
 
-  const callAllConnectedUsers = async () => {
+  const stopLocalStream = () => {
+    if (myStreamRef.current) {
+      myStreamRef.current.getTracks().forEach((track) => track.stop());
+      myStreamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    socket.emit("peer-stream-off", { roomCode, socketId: socket.id });
+  };
+
+  const startLocalStream = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true,
       });
 
-      videoRef.current.srcObject = stream;
       myStreamRef.current = stream;
-      // mute for yourself
-      videoRef.current.muted = true;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        // mute for yourself
+        videoRef.current.muted = true;
+      }
 
       connectedUsers.forEach((user) => {
-        if (user.socketId !== socket.id) sendStream(user, stream);
-      });
+        if (user.socketId !== socket.id) {
+          try {
+            console.log("Calling user:", user.socketId);
+            const call = peer.call(user.socketId, stream);
 
-      socket.on("joined", (newUser) => {
-        console.log("hello");
-        sendStream(newUser, stream);
+            call.on("stream", (userVideoStream) => {
+              console.log("Got stream from:", user.socketId);
+              if (userVideoStream)
+                setStreams((savedStreams) => {
+                  const newState = { ...savedStreams };
+                  newState[call.peer] = userVideoStream;
+                  return newState;
+                });
+            });
+
+            call.on("error", (error) => {
+              console.error("Call error with user:", user.socketId, error);
+            });
+          } catch (error) {
+            console.error("Error calling user:", user.socketId, error);
+          }
+        }
       });
     } catch (error) {
-      console.log(error);
-      showErrorToast("Permission Denied");
+      console.error("Media access error:", error);
+      showErrorToast("Failed to access camera/microphone");
       setIsStreaming(false);
     }
   };
@@ -137,28 +188,6 @@ function VideoStreamingGallery(props) {
       streamsRef.current[stream.id].srcObject = stream;
     });
   }, [streams]);
-
-  const sendStream = (user, stream) => {
-    const call = peer.call(user.socketId, stream);
-    console.log("calling........", call);
-    call.on("stream", (userVideoStream) => {
-      console.log("on calling user", userVideoStream);
-      if (userVideoStream)
-        setStreams((savedStreams) => {
-          const newState = { ...savedStreams };
-          newState[call.peer] = userVideoStream;
-          return newState;
-        });
-    });
-    call.on("close", () => {
-      console.log("closed connection");
-      setStreams((savedStreams) => {
-        const newState = { ...savedStreams };
-        delete newState[call.peer];
-        return newState;
-      });
-    });
-  };
 
   return (
     <div className={`code-editor__gallery ${className}`}>
