@@ -25,7 +25,7 @@ const authMiddleware = passport.authenticate("jwt", { session: false });
 //       : undefined,
 // });
 const peerServer = ExpressPeerServer(server, {
-  path: "/peerjs",
+  path: process.env.PEER_SERVER_PATH,
   allow_discovery: true,
 });
 
