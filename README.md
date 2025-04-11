@@ -1,4 +1,5 @@
-![DevsTogether Logo](https://github.com/user-attachments/assets/cc6c0985-71ee-4597-8a3e-38874989682c)
+![DevsTogether Logo](https://github.com/user-attachments/assets/fb87bf5f-e62e-426f-89be-a1a5b5c2afe2)
+
 
 
 
