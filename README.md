@@ -12,7 +12,7 @@
 | ------------------------------- | -------------------------------------------------------------------------------|
 | **Frontend**                    | ReactJS, React Router, Redux Toolkit, Redux Persist, Material-UI (MUI), PeerJS |
 | **Backend**                     | ExpressJS, Mongoose, Socket.IO, peer                                           |
-| **Authentication & Validation** | Passport, JWT, JOI, Google OAuth 2.0                                           |
+| **Authentication & Validation** | Passport, JWT, Google OAuth 2.0                                           |
 
 ---
 
